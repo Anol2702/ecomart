@@ -18,7 +18,8 @@
     endif
 
     assign paginate_by = 30
-    if 28 | modulo: section.settings.columns_desktop == 0
+    assign modulo_result = 28 | modulo: section.settings.columns_desktop
+    if section.settings.columns_desktop != 0 and modulo_result == 0
       assign paginate_by = 28
     endif
   -%}
