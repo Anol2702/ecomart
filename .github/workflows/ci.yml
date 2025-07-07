@@ -1,8 +1,10 @@
 name: CI
-on: [push]
+on: [push, pull_request]
 permissions:
   contents: read
   pull-requests: write
+  checks: write
+  statuses: write
 jobs:
   theme-check:
     name: Theme Check

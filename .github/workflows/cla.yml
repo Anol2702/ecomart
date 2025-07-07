@@ -5,6 +5,7 @@ on:
 permissions:
   contents: read
   pull-requests: write
+  issues: write
 jobs:
   cla:
     runs-on: ubuntu-latest
@@ -15,9 +16,23 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
+            // Check if we've already commented on this PR
+            const { data: comments } = await github.rest.issues.listComments({
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: 'Thank you for your contribution! Please make sure you have read and agreed to our contribution guidelines.'
-            })
+              issue_number: context.issue.number
+            });
+            
+            const botComment = comments.find(comment => 
+              comment.user.type === 'Bot' && 
+              comment.body.includes('contribution guidelines')
+            );
+            
+            if (!botComment) {
+              await github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: 'Thank you for your contribution! Please make sure you have read and agreed to our contribution guidelines.'
+              });
+            }
