@@ -2,22 +2,22 @@ name: Contributor License Agreement (CLA)
 on:
   pull_request_target:
     types: [opened, synchronize]
-  issue_comment:
-    types: [created]
 permissions:
   contents: read
   pull-requests: write
-  issues: write
 jobs:
   cla:
     runs-on: ubuntu-latest
-    if: |
-      (github.event.issue.pull_request
-       && !github.event.issue.pull_request.merged_at
-       && contains(github.event.comment.body, 'signed')
-      )
-      || (github.event.pull_request && !github.event.pull_request.merged)
+    if: github.event.pull_request && !github.event.pull_request.merged
     steps:
-      - uses: Shopify/shopify-cla-action@v1
+      - name: Comment on PR
+        uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: 'Thank you for your contribution! Please make sure you have read and agreed to our contribution guidelines.'
+            })
